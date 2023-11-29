@@ -36,6 +36,20 @@ if os.path.exists("web-founds.txt"):
     os.remove("web-founds.txt")
 
 
+def is_it_http_req_to_https(resp):
+    if resp.status_code != 400:
+        return False
+
+    phrases =['The plain HTTP request was sent to HTTPS port',
+              'speaking plain HTTP to an SSL-enabled']
+    for phrase in phrases:
+        if phrase not in resp.text:
+            continue
+        return True
+
+    return False
+
+
 class Worker(threading.Thread):
     daemon = True
 
@@ -47,7 +61,8 @@ class Worker(threading.Thread):
                     resp = requests.get(
                         url, verify=False, timeout=3, headers={'User-Agent': 'Mozilla/5.0'})
 
-                    if resp.status_code in IGNORE_STATUSES:
+                    if resp.status_code in IGNORE_STATUSES or \
+                            is_it_http_req_to_https(resp):
                         continue
 
                     print(url)

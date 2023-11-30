@@ -24,7 +24,7 @@ for line in open(sys.argv[1]):
     if not len(line):
         continue
     ips = is_domain_alive(line)
-    print(line + " => " + str(ips))
+    print("{0}\t{1}".format(line, ",".join(ips) if ips is not None else "unknown"))
     if ips is None:
         ips = ['Not Found']
 

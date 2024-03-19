@@ -1,11 +1,12 @@
 #!/usr/bin/python3
 
+import csv
 import sys
 import ipaddress
 import socket
 from termcolor import colored
 
-if len(sys.argv) != 4:
+if len(sys.argv) != 3:
     print("USAGE: {0} subnets.txt domains.txt".format(sys.argv[0]))
     exit(0)
 
@@ -25,6 +26,12 @@ for subnet in open(sys.argv[1]):
         continue
     subnets.add(ipaddress.ip_network(subnet, False))
 
+csvfile_in = open('in-subnets.csv', 'w')
+csvfile_out = open('not-in-subnets.csv', 'w')
+
+csv_writer_in = csv.writer(csvfile_in, quoting=csv.QUOTE_ALL)
+csv_writer_out = csv.writer(csvfile_out, quoting=csv.QUOTE_ALL)
+
 found_fh = open("in-subnets.txt", "w")
 not_found_fh = open("not-in-subnets.txt", "w")
 for domain in domains:
@@ -36,12 +43,14 @@ for domain in domains:
         for subnet in subnets:
             if ip in subnet:
                 found = True
+                csv_writer_in.writerow([domain, ip])
                 print(colored("{0} in {1}".format(domain, subnet), "green"))
     except socket.gaierror:
         print(colored("{0} - not resolving".format(domain), "red"))
         continue
 
     if not found:
+        csv_writer_out.writerow([domain, ip])
         print(colored("{0} ({1}) is not in subnets :( ".format(domain, ip), "red"))
         not_found_fh.write(domain + "\n")
     else:

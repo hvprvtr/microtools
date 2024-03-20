@@ -43,6 +43,8 @@ for target in targets:
         continue
 
     for repo in data:
+        if repo['fork'] is True:
+            continue
         print(repo['html_url'])
 
 if len(errors) > 0:

@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import sys
+import re
 import argparse
 import os
 
@@ -11,6 +12,23 @@ MARKER_DEPARTMENT = "<DEPARTMENT>"
 MARKER_COUNTRY = "<LOCATION>"
 MARKER_CITY = "<ADDRESS>"
 MARKER_HOBBY = "<SPORTS_TEAM/HOBBY>"
+
+
+def mutate(s):
+    mutations = []
+    mutations.append(s)
+    if re.match('^[A-Z]{1}[a-z0-9]+', s):
+        mutations.append(s.lower())
+    if s.islower():
+        mutations.append(s[0:1].upper() + s[1:])
+    return mutations
+
+
+def print_mutations(source_line, marker, mutations):
+    for mutation in mutations:
+        line = source_line.replace(marker, mutation)
+        print(line)
+
 
 if not os.path.exists(DICT_PATH):
     print("Corporate dict not exists in " + DICT_PATH)
@@ -41,18 +59,22 @@ for line in open(DICT_PATH):
         continue
 
     if MARKER_COMPANY in line:
-        line = line.replace(MARKER_COMPANY, args.company)
+        mutations = mutate(args.company)
+        print_mutations(line, MARKER_COMPANY, mutations)
 
     if MARKER_DEPARTMENT in line:
-        line = line.replace(MARKER_DEPARTMENT, args.department)
+        mutations = mutate(args.department)
+        print_mutations(line, MARKER_DEPARTMENT, mutations)
 
     if MARKER_COUNTRY in line:
-        line = line.replace(MARKER_COUNTRY, args.country)
+        mutations = mutate(args.country)
+        print_mutations(line, MARKER_COUNTRY, mutations)
 
     if MARKER_CITY in line:
-        line = line.replace(MARKER_CITY, args.city)
+        mutations = mutate(args.city)
+        print_mutations(line, MARKER_CITY, mutations)
 
     if MARKER_HOBBY in line:
-        line = line.replace(MARKER_HOBBY, args.hobby)
+        mutations = mutate(args.hobby)
+        print_mutations(line, MARKER_HOBBY, mutations)
 
-    print(line)
